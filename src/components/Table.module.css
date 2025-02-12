@@ -1,0 +1,46 @@
+.table {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  background-color: #1B6039;
+  padding: 35px;
+
+  grid-template:
+    ". topP topP topP ." var(--card-height)
+    "leftP . . . rightP" 1fr
+    "leftP . decks . rightP" 1fr
+    "leftP . . . rightP" 1fr
+    ". bottomP bottomP bottomP ." var(--card-height) / var(--card-height) 1fr calc(var(--card-height) * 2) 1fr var(--card-height)
+}
+
+.bottom-player {
+  grid-area: bottomP;
+  display: flex;
+  justify-content: center;
+}
+
+.top-player {
+  grid-area: topP;
+  display: flex;
+  justify-content: center;
+}
+
+.left-player {
+  grid-area: leftP;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.right-player {
+  grid-area: rightP;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.decks {
+  grid-area: decks;
+  display: flex;
+  justify-content: space-between;
+}
