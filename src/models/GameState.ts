@@ -1,4 +1,4 @@
-import { Card, Suit } from "../models/card";
+import { Card, Suit } from "./card";
 
 export type GameState = Readonly<{
   drawDeck: readonly Card[];
@@ -23,4 +23,4 @@ type TopDiscardState =
   | Readonly<{ state: "noEffect" }>
   | Readonly<{ state: "aceActive" }>
   | Readonly<{ state: "sevenActive", cardsToDraw: number }>
-  | Readonly<{ state: "queenActive", chosenSuit: Suit }>;
+  | Readonly<{ state: "queenActive", chosenSuit: Suit }>; 

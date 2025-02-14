@@ -3,7 +3,7 @@ import { type Component } from 'solid-js';
 import styles from './App.module.css';
 import { Game } from './components/Game';
 import { cardHeight } from './constants';
-import { GameState } from './types/GameState';
+import { GameState } from './models/GameState';
 
 export const App: Component = () => (
   <div class={styles.App} style={{ '--card-height': `${cardHeight}px` }}>

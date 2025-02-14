@@ -1,5 +1,5 @@
 import { Component } from 'solid-js';
-import { GameState } from '../types/GameState';
+import { GameState } from '../models/GameState';
 import { Table } from './Table';
 import { Hand } from './Hand';
 import { DrawDeck } from './DrawDeck';
