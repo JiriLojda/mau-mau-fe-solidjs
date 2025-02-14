@@ -4,11 +4,10 @@ import { Card as CardComponent } from './Card';
 import { randomInt } from "../utils/random";
 import { cardHeight, cardWidth } from "../constants";
 import { zip } from "../utils/array";
-import { noop } from "../utils/function";
 
 type Props = Readonly<{
   cards: readonly Card[];
-  onClick: () => void;
+  onClick?: () => void;
 }>;
 
 export const DiscardPile = (props: Props) => {
@@ -31,7 +30,7 @@ export const DiscardPile = (props: Props) => {
         {(pair, index) => (
           <CardComponent
             style={{ position: 'absolute', 'z-index': index + 1, left: `${cardHeight / 2}px`, right: `${cardHeight / 2}px`, transform: `rotate(${pair()[1]}deg)` }}
-            onClick={index === props.cards.length - 1 ? props.onClick : noop}
+            onClick={index === props.cards.length - 1 ? props.onClick : undefined}
             card={pair()[0]}
           />
         )}

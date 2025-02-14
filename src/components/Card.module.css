@@ -1,0 +1,7 @@
+.clickable {
+  cursor: pointer;
+}
+
+.nonClickable {
+  cursor: default;
+} 

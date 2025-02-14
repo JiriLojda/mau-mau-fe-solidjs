@@ -5,6 +5,7 @@ import { CardBack } from "./CardBack";
 
 type Props = Readonly<{
   numberOfCards: number;
+  onClick?: () => void;
 }>;
 
 export const DrawDeck: Component<Props> = props =>
@@ -12,15 +13,15 @@ export const DrawDeck: Component<Props> = props =>
     {
       match(props.numberOfCards)
         .with(0, () => null)
-        .with(1, () => <CardBack />)
+        .with(1, () => <CardBack onClick={props.onClick} />)
         .with(2, () => <>
-          <CardBack style={{ ...commonStyle, left: 0, 'z-index': 2 }} />
-          <CardBack style={{ ...commonStyle, left: `${cardOverlap}px`, 'z-index': 1 }} />
+          <CardBack style={{ ...commonStyle, left: 0, 'z-index': 2 }} onClick={props.onClick} />
+          <CardBack style={{ ...commonStyle, left: `${cardOverlap}px`, 'z-index': 1 }} onClick={props.onClick} />
         </>)
         .otherwise(() => <>
-          <CardBack style={{ ...commonStyle, left: 0, 'z-index': 3 }} />
-          <CardBack style={{ ...commonStyle, left: `${cardOverlap}px`, 'z-index': 2 }} />
-          <CardBack style={{ ...commonStyle, left: `${2 * cardOverlap}px`, 'z-index': 1 }} />
+          <CardBack style={{ ...commonStyle, left: 0, 'z-index': 3 }} onClick={props.onClick} />
+          <CardBack style={{ ...commonStyle, left: `${cardOverlap}px`, 'z-index': 2 }} onClick={props.onClick} />
+          <CardBack style={{ ...commonStyle, left: `${2 * cardOverlap}px`, 'z-index': 1 }} onClick={props.onClick} />
         </>)
     }
   </div>

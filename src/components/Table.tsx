@@ -4,25 +4,31 @@ import { match } from "ts-pattern";
 import { Direction } from "../models/direction";
 
 type Props = Readonly<{
-  renderPlayers: RenderPlayersType;
+  renderCurrentPlayer: (dir: Direction) => JSX.Element;
+  renderOtherPlayers: ReadonlyArray<(dir: Direction) => JSX.Element>;
   drawDeck: JSX.Element;
   discardPile: JSX.Element;
 }>;
 
 export const Table: Component<Props> = props => {
   const playerDirection = (playerIndex: number) =>
-    props.renderPlayers.length === 2 && playerIndex === 1
+    props.renderOtherPlayers.length === 1 && playerIndex === 0
       ? Direction.Down
       : match(playerIndex)
-        .with(0, () => Direction.Up)
-        .with(1, () => Direction.Right)
-        .with(2, () => Direction.Down)
-        .with(3, () => Direction.Left)
+        .with(0, () => Direction.Right)
+        .with(1, () => Direction.Down)
+        .with(2, () => Direction.Left)
         .otherwise(() => Direction.Up);
 
   return (
     <div class={table}>
-      <Index each={props.renderPlayers}>
+      {/* Current player is always at the bottom */}
+      <div class={bottomPlayer}>
+        {props.renderCurrentPlayer(Direction.Up)}
+      </div>
+
+      {/* Other players */}
+      <Index each={props.renderOtherPlayers}>
         {(renderPlayer, index) => {
           const direction = playerDirection(index);
           return (
@@ -32,6 +38,7 @@ export const Table: Component<Props> = props => {
           );
         }}
       </Index>
+
       <div class={decks}>
         {props.discardPile}
         {props.drawDeck}
@@ -39,11 +46,6 @@ export const Table: Component<Props> = props => {
     </div>
   );
 };
-
-type RenderPlayersType =
-  [(dir: Direction) => JSX.Element, (dir: Direction) => JSX.Element] |
-  [(dir: Direction) => JSX.Element, (dir: Direction) => JSX.Element, (dir: Direction) => JSX.Element] |
-  [(dir: Direction) => JSX.Element, (dir: Direction) => JSX.Element, (dir: Direction) => JSX.Element, (dir: Direction) => JSX.Element];
 
 const directionToClass = (direction: Direction) =>
   match(direction)

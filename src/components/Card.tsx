@@ -2,11 +2,13 @@ import { JSX } from "solid-js/jsx-runtime";
 import { Card as CardType } from "../models/card";
 import { match } from "ts-pattern";
 import { cardHeight, cardWidth } from "../constants";
+import { clickable, nonClickable } from './Card.module.css';
 
-type Props = Readonly<{ style?: JSX.CSSProperties, card: CardType; onClick: () => void }>;
+type Props = Readonly<{ style?: JSX.CSSProperties, card: CardType; onClick?: () => void }>;
 
 export const Card = (props: Props) => (
   <img
+    class={props.onClick ? clickable : nonClickable}
     style={props.style}
     src={`/src/assets/images/${mapCardTypeToImageName(props.card)}.png`}
     width={cardWidth}

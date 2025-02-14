@@ -1,19 +1,19 @@
 import { Component, For, JSX } from "solid-js";
 import { Card as CardType } from "../models/card";
 import { Card } from "./Card";
-import styles from './Hand.module.css';
 import { match, P } from "ts-pattern";
 import { Direction } from "../models/direction";
 import { cardHeight, cardWidth } from "../constants";
+import { hand } from './Hand.module.css';
 
 type Props = Readonly<{
   cards: ReadonlyArray<CardType>;
-  onCardClick: (card: CardType) => void;
+  onCardClick?: (card: CardType) => void;
   direction: Direction;
 }>;
 
 export const Hand: Component<Props> = props => (
-  <section style={handStyle(props.direction, props.cards.length)} class={styles.hand}>
+  <section style={handStyle(props.direction, props.cards.length)} class={hand}>
     <For each={props.cards}>
       {(card, index) => (
         <Card
@@ -24,7 +24,7 @@ export const Hand: Component<Props> = props => (
             transform: cardTransform(props.direction),
           }}
           card={card}
-          onClick={() => props.onCardClick(card)}
+          onClick={props.onCardClick ? () => props.onCardClick?.(card) : undefined}
         />
       )}
     </For>
