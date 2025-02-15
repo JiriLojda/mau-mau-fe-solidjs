@@ -25,11 +25,9 @@ export const createWebSocketClient = (serverUrl: string) => {
   const addMessage = (message: ServerMessage) =>
     setState("messages", state.messages.length, message);
 
-  const addError = (error: WebSocketError) =>
-    setState("errors", state.errors.length, error);
+  const addError = (error: WebSocketError) => setState("errors", state.errors.length, error);
 
-  const setConnection = (connection: WebSocket | null) =>
-    setState("connection", connection);
+  const setConnection = (connection: WebSocket | null) => setState("connection", connection);
 
   const connect = (): Promise<void> =>
     new Promise((resolve, reject) => {

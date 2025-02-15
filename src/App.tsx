@@ -17,49 +17,52 @@ export const App: Component = () => (
 );
 
 const sampleGameState: GameState = {
-  drawDeck: [
-    { suit: "Hearts", value: "Eight" },
-    { suit: "Diamonds", value: "Ten" },
-    { suit: "Clubs", value: "Jack" },
-    { suit: "Spades", value: "Nine" },
-    { suit: "Hearts", value: "Queen" },
+  drawPile: [
+    { cardType: "unknownType", suite: "unknownSuite" },
+    { cardType: "unknownType", suite: "unknownSuite" },
+    { cardType: "unknownType", suite: "unknownSuite" },
+    { cardType: "unknownType", suite: "unknownSuite" },
+    { cardType: "unknownType", suite: "unknownSuite" },
   ],
-  topDiscard: { suit: "Spades", value: "Ten" },
-  topDiscardState: { state: "noEffect" },
+  topCard: { suite: "spades", cardType: "ten" },
+  topCardState: { state: "noEffect" },
   discardPile: [
-    { suit: "Clubs", value: "King" },
-    { suit: "Hearts", value: "Seven" },
+    { suite: "clubs", cardType: "king" },
+    { suite: "hearts", cardType: "seven" },
   ],
-  playerHand: [
-    { suit: "Spades", value: "Ten" },
-    { suit: "Clubs", value: "King" },
-    { suit: "Hearts", value: "Seven" },
-  ],
+  thisPlayer: {
+    name: "Player 1",
+    hand: [
+      { suite: "spades", cardType: "ten" },
+      { suite: "clubs", cardType: "king" },
+      { suite: "hearts", cardType: "seven" },
+    ],
+  },
   otherPlayers: [
     {
       name: "Player 2",
       hand: [
-        { suit: "Diamonds", value: "Ace" },
-        { suit: "Spades", value: "Queen" },
-        { suit: "Clubs", value: "Nine" },
+        { suite: "diamonds", cardType: "ace" },
+        { suite: "spades", cardType: "queen" },
+        { suite: "clubs", cardType: "nine" },
       ],
     },
     {
       name: "Player 3",
       hand: [
-        { suit: "Hearts", value: "King" },
-        { suit: "Diamonds", value: "Nine" },
-        { suit: "Spades", value: "Eight" },
+        { suite: "hearts", cardType: "king" },
+        { suite: "diamonds", cardType: "nine" },
+        { suite: "spades", cardType: "eight" },
       ],
     },
     {
       name: "Player 4",
       hand: [
-        { suit: "Clubs", value: "Ace" },
-        { suit: "Hearts", value: "Jack" },
-        { suit: "Diamonds", value: "Seven" },
+        { suite: "clubs", cardType: "ace" },
+        { suite: "hearts", cardType: "jack" },
+        { suite: "diamonds", cardType: "seven" },
       ],
     },
   ],
-  nextPlayer: { type: "thisPlayer" },
+  nextPlayerName: "Player 2",
 };

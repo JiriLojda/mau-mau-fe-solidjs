@@ -1,14 +1,14 @@
 import { type Component, For, type JSX } from "solid-js";
 import { P, match } from "ts-pattern";
 import { cardHeight, cardWidth } from "../constants";
-import type { Card as CardType } from "../models/card";
+import type { Card as CardType, UnknownCard } from "../models/card";
 import { Direction } from "../models/direction";
 import { Card } from "./Card";
 import { hand } from "./Hand.module.css";
 
 type Props = Readonly<{
-  cards: ReadonlyArray<CardType>;
-  onCardClick?: (card: CardType) => void;
+  cards: ReadonlyArray<CardType | UnknownCard>;
+  onCardClick?: (card: CardType | UnknownCard) => void;
   direction: Direction;
 }>;
 
