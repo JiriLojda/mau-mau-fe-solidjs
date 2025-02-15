@@ -1,10 +1,10 @@
-import { Component, For, JSX } from "solid-js";
-import { Card as CardType } from "../models/card";
-import { Card } from "./Card";
-import { match, P } from "ts-pattern";
-import { Direction } from "../models/direction";
+import { type Component, For, type JSX } from "solid-js";
+import { P, match } from "ts-pattern";
 import { cardHeight, cardWidth } from "../constants";
-import { hand } from './Hand.module.css';
+import type { Card as CardType } from "../models/card";
+import { Direction } from "../models/direction";
+import { Card } from "./Card";
+import { hand } from "./Hand.module.css";
 
 type Props = Readonly<{
   cards: ReadonlyArray<CardType>;
@@ -20,7 +20,7 @@ export const Hand: Component<Props> = props => (
           style={{
             position: "absolute",
             [cardPositionPropName(props.direction)]: `${(cardWidth - cardOverlap) * index()}px`,
-            'z-index': index(),
+            "z-index": index(),
             transform: cardTransform(props.direction),
           }}
           card={card}
@@ -49,6 +49,12 @@ const cardPositionPropName = (direction: Direction) =>
 
 const handStyle = (direction: Direction, cardsNum: number): JSX.CSSProperties =>
   match(direction)
-    .with(P.union(Direction.Up, Direction.Down), () => ({ width: `${(cardWidth - cardOverlap) * cardsNum + (cardsNum ? cardOverlap : 0)}px`, height: `${cardHeight}px` }))
-    .with(P.union(Direction.Right, Direction.Left), () => ({ height: `${(cardWidth - cardOverlap) * cardsNum + (cardsNum ? cardOverlap : 0)}px`, width: `${cardHeight}px` }))
+    .with(P.union(Direction.Up, Direction.Down), () => ({
+      width: `${(cardWidth - cardOverlap) * cardsNum + (cardsNum ? cardOverlap : 0)}px`,
+      height: `${cardHeight}px`,
+    }))
+    .with(P.union(Direction.Right, Direction.Left), () => ({
+      height: `${(cardWidth - cardOverlap) * cardsNum + (cardsNum ? cardOverlap : 0)}px`,
+      width: `${cardHeight}px`,
+    }))
     .exhaustive();

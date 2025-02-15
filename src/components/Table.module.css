@@ -2,7 +2,7 @@
   display: grid;
   width: 100%;
   height: 100%;
-  background-color: #1B6039;
+  background-color: #1b6039;
   padding: 35px;
 
   grid-template:
@@ -10,7 +10,10 @@
     "leftP . . . rightP" 1fr
     "leftP . decks . rightP" 1fr
     "leftP . . . rightP" 1fr
-    ". bottomP bottomP bottomP ." var(--card-height) / var(--card-height) 1fr calc(var(--card-height) * 2) 1fr var(--card-height)
+    ". bottomP bottomP bottomP ." var(--card-height) / var(--card-height) 1fr calc(
+      var(--card-height) *
+      2
+    ) 1fr var(--card-height);
 }
 
 .bottom-player {
