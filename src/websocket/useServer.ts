@@ -1,128 +1,12 @@
-import { createSignal } from "solid-js";
+import { createEffect, createSignal } from "solid-js";
 import type { GameState } from "../models/GameState";
 import { createWebSocketClient } from "./client";
 import type { ServerMessage } from "./schemas";
 
-type NotConnectedState = Readonly<{
-  type: "notConnected";
-}>;
-
-type ConnectedState = Readonly<{
-  userName: string;
-}>;
-
-type ConnectedOutsideGameState = Readonly<
-  ConnectedState & {
-    type: "connectedOutsideGame";
-    availableGameIds: readonly string[];
-  }
->;
-
-type WaitingInLobbyState = Readonly<
-  ConnectedState & {
-    type: "waitingInLobby";
-    gameId: string;
-    usersInGame: readonly string[];
-    creatorName: string;
-  }
->;
-
-type PlayingGameState = Readonly<
-  ConnectedState & {
-    type: "playingGame";
-    gameId: string;
-    gameState: GameState;
-  }
->;
-
-type GameEndedState = Readonly<
-  ConnectedState & {
-    type: "gameEnded";
-    gameId: string;
-    winnerName: string;
-    finalGameState: GameState;
-  }
->;
-
-export type ConnectionState =
-  | NotConnectedState
-  | ConnectedOutsideGameState
-  | WaitingInLobbyState
-  | PlayingGameState
-  | GameEndedState;
-
-type NotConnectedApi = Readonly<{
-  state: NotConnectedState;
-  connect: (userName: string) => Promise<void>;
-}>;
-
-type ConnectedOutsideGameApi = Readonly<{
-  state: ConnectedOutsideGameState;
-  createGame: () => Promise<void>;
-  joinGame: (gameId: string) => Promise<void>;
-  disconnect: () => Promise<void>;
-}>;
-
-type WaitingInLobbyApi = Readonly<{
-  state: WaitingInLobbyState;
-  startGame: () => Promise<void>;
-  disconnect: () => Promise<void>;
-  canStartGame: boolean;
-}>;
-
-type PlayingGameApi = Readonly<{
-  state: PlayingGameState;
-  client: ReturnType<typeof createWebSocketClient>;
-  disconnect: () => Promise<void>;
-}>;
-
-type GameEndedApi = Readonly<{
-  state: GameEndedState;
-  disconnect: () => Promise<void>;
-}>;
-
-export type ConnectionApi =
-  | NotConnectedApi
-  | ConnectedOutsideGameApi
-  | WaitingInLobbyApi
-  | PlayingGameApi
-  | GameEndedApi;
-
-const transformGameState = (
-  serverState: Readonly<ServerMessage & { type: "startGame" | "turn" | "gameEnded" }>,
-  userName: string,
-  originalPlayerOrder: readonly string[],
-): GameState => {
-  if ("error" in serverState) throw new Error("Cannot transform error state");
-
-  const state = serverState.state;
-  const allPlayers = [state.nextPlayer, ...state.restPlayers];
-  const thisPlayer = allPlayers.find(p => p.name === userName);
-  if (!thisPlayer) throw new Error("Player not found in the game state");
-
-  // Sort other players to maintain the original order from game start
-  const otherPlayers = originalPlayerOrder
-    .filter(name => name !== userName)
-    .map(name => {
-      const player = allPlayers.find(p => p.name === name);
-      if (!player) throw new Error(`Player ${name} not found in the game state`);
-      return player;
-    });
-
-  return {
-    thisPlayer,
-    otherPlayers,
-    nextPlayerName: state.nextPlayer.name,
-    topCard: state.topCard,
-    discardPile: state.discardPile,
-    drawPile: state.drawPile,
-    topCardState: state.topCardState,
-  };
-};
-
 export const useServer = (serverUrl: string) => {
   const [connectionState, setConnectionState] = createSignal<ConnectionState>({
     type: "notConnected",
+    submittedUserName: "",
   });
   const [originalPlayerOrder, setOriginalPlayerOrder] = createSignal<readonly string[]>([]);
   const client = createWebSocketClient(serverUrl);
@@ -134,7 +18,7 @@ export const useServer = (serverUrl: string) => {
         const currentState = connectionState();
         setConnectionState({
           type: "connectedOutsideGame",
-          userName: currentState.type === "notConnected" ? "" : currentState.userName,
+          userName: currentState.type === "notConnected" ? currentState.submittedUserName : "",
           availableGameIds: message.availableGameIds,
         });
         break;
@@ -207,9 +91,15 @@ export const useServer = (serverUrl: string) => {
     }
   };
 
-  client.state.messages.forEach(handleServerMessage);
+  createEffect(() => {
+    if (client.state.messages.length > 0) {
+      client.state.messages.forEach(handleServerMessage);
+      client.clearMessages();
+    }
+  });
 
   const connect = async (userName: string) => {
+    setConnectionState({ ...connectionState(), submittedUserName: userName });
     await client.connect();
     await client.send({ type: "logIn", userName });
   };
@@ -252,7 +142,7 @@ export const useServer = (serverUrl: string) => {
     }
     await client.disconnect();
     setOriginalPlayerOrder([]);
-    setConnectionState({ type: "notConnected" });
+    setConnectionState({ type: "notConnected", submittedUserName: "" });
   };
 
   const getApi = (): ConnectionApi => {
@@ -292,4 +182,122 @@ export const useServer = (serverUrl: string) => {
   };
 
   return getApi;
+};
+
+export type NotConnectedState = Readonly<{
+  type: "notConnected";
+  submittedUserName: string;
+}>;
+
+type ConnectedState = Readonly<{
+  userName: string;
+}>;
+
+export type ConnectedOutsideGameState = Readonly<
+  ConnectedState & {
+    type: "connectedOutsideGame";
+    availableGameIds: readonly string[];
+  }
+>;
+
+export type WaitingInLobbyState = Readonly<
+  ConnectedState & {
+    type: "waitingInLobby";
+    gameId: string;
+    usersInGame: readonly string[];
+    creatorName: string;
+  }
+>;
+
+export type PlayingGameState = Readonly<
+  ConnectedState & {
+    type: "playingGame";
+    gameId: string;
+    gameState: GameState;
+  }
+>;
+
+export type GameEndedState = Readonly<
+  ConnectedState & {
+    type: "gameEnded";
+    gameId: string;
+    winnerName: string;
+    finalGameState: GameState;
+  }
+>;
+
+export type ConnectionState =
+  | NotConnectedState
+  | ConnectedOutsideGameState
+  | WaitingInLobbyState
+  | PlayingGameState
+  | GameEndedState;
+
+export type NotConnectedApi = Readonly<{
+  state: NotConnectedState;
+  connect: (userName: string) => Promise<void>;
+}>;
+
+type ConnectedOutsideGameApi = Readonly<{
+  state: ConnectedOutsideGameState;
+  createGame: () => Promise<void>;
+  joinGame: (gameId: string) => Promise<void>;
+  disconnect: () => Promise<void>;
+}>;
+
+type WaitingInLobbyApi = Readonly<{
+  state: WaitingInLobbyState;
+  startGame: () => Promise<void>;
+  disconnect: () => Promise<void>;
+  canStartGame: boolean;
+}>;
+
+type PlayingGameApi = Readonly<{
+  state: PlayingGameState;
+  client: ReturnType<typeof createWebSocketClient>;
+  disconnect: () => Promise<void>;
+}>;
+
+type GameEndedApi = Readonly<{
+  state: GameEndedState;
+  disconnect: () => Promise<void>;
+}>;
+
+export type ConnectionApi =
+  | NotConnectedApi
+  | ConnectedOutsideGameApi
+  | WaitingInLobbyApi
+  | PlayingGameApi
+  | GameEndedApi;
+
+const transformGameState = (
+  serverState: Readonly<ServerMessage & { type: "startGame" | "turn" | "gameEnded" }>,
+  userName: string,
+  originalPlayerOrder: readonly string[],
+): GameState => {
+  if ("error" in serverState) throw new Error("Cannot transform error state");
+
+  const state = serverState.state;
+  const allPlayers = [state.nextPlayer, ...state.restPlayers];
+  const thisPlayer = allPlayers.find(p => p.name === userName);
+  if (!thisPlayer) throw new Error("Player not found in the game state");
+
+  // Sort other players to maintain the original order from game start
+  const otherPlayers = originalPlayerOrder
+    .filter(name => name !== userName)
+    .map(name => {
+      const player = allPlayers.find(p => p.name === name);
+      if (!player) throw new Error(`Player ${name} not found in the game state`);
+      return player;
+    });
+
+  return {
+    thisPlayer,
+    otherPlayers,
+    nextPlayerName: state.nextPlayer.name,
+    topCard: state.topCard,
+    discardPile: state.discardPile,
+    drawPile: state.drawPile,
+    topCardState: state.topCardState,
+  };
 };

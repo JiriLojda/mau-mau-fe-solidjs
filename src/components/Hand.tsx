@@ -19,9 +19,9 @@ export const Hand: Component<Props> = props => (
         <Card
           style={{
             position: "absolute",
-            [cardPositionPropName(props.direction)]: `${(cardWidth - cardOverlap) * index()}px`,
             "z-index": index(),
-            transform: cardTransform(props.direction),
+            ...cardTransformProps(props.direction),
+            ...cardPositionProps(props.direction, index()),
           }}
           card={card}
           onClick={props.onCardClick ? () => props.onCardClick?.(card) : undefined}
@@ -33,19 +33,23 @@ export const Hand: Component<Props> = props => (
 
 const cardOverlap = 25;
 
-const cardTransform = (direction: Direction) =>
+const cardTransformProps = (direction: Direction): JSX.CSSProperties =>
   match(direction)
-    .with(Direction.Up, () => "rotate(0deg)")
-    .with(Direction.Right, () => "rotate(90deg) translate(-50%, 25%)")
-    .with(Direction.Down, () => "rotate(180deg)")
-    .with(Direction.Left, () => "rotate(270deg) translate(50%, -25%)")
+    .with(Direction.Up, () => ({ transform: "rotate(0deg)" }))
+    .with(Direction.Right, () => ({ transform: "rotate(90deg)", "transform-origin": "50% 25%" }))
+    .with(Direction.Down, () => ({ transform: "rotate(180deg)" }))
+    .with(Direction.Left, () => ({ transform: "rotate(270deg)", "transform-origin": "50% 25%" }))
     .exhaustive();
 
-const cardPositionPropName = (direction: Direction) =>
-  match(direction)
-    .with(P.union(Direction.Up, Direction.Down), () => "left" as const)
-    .with(P.union(Direction.Right, Direction.Left), () => "top" as const)
+const cardPositionProps = (direction: Direction, index: number): JSX.CSSProperties => {
+  const moveBy = (cardWidth - cardOverlap) * index;
+
+  return match(direction)
+    .with(P.union(Direction.Up, Direction.Down), () => ({ left: `${moveBy}px` }))
+    .with(Direction.Right, () => ({ top: `${moveBy}px`, right: "0" }))
+    .with(Direction.Left, () => ({ top: `${moveBy}px`, left: "0" }))
     .exhaustive();
+};
 
 const handStyle = (direction: Direction, cardsNum: number): JSX.CSSProperties =>
   match(direction)

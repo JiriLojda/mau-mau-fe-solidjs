@@ -2,6 +2,17 @@ import { createStore } from "solid-js/store";
 import type { ClientMessage, ServerMessage } from "./schemas";
 import { ServerMessageSchema } from "./schemas";
 
+const formatError = (error: unknown): string => {
+  console.error(error);
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === "object" && error !== null) {
+    return JSON.stringify(error);
+  }
+  return String(error);
+};
+
 export class WebSocketError extends Error {
   constructor(message: string) {
     super(message);
@@ -11,8 +22,8 @@ export class WebSocketError extends Error {
 
 type WebSocketState = {
   connection: WebSocket | null;
-  messages: ServerMessage[];
-  errors: WebSocketError[];
+  messages: readonly ServerMessage[];
+  errors: readonly WebSocketError[];
 };
 
 export const createWebSocketClient = (serverUrl: string) => {
@@ -22,12 +33,15 @@ export const createWebSocketClient = (serverUrl: string) => {
     errors: [],
   });
 
-  const addMessage = (message: ServerMessage) =>
-    setState("messages", state.messages.length, message);
+  const addMessage = (message: ServerMessage) => setState("messages", [...state.messages, message]);
 
-  const addError = (error: WebSocketError) => setState("errors", state.errors.length, error);
+  const addError = (error: WebSocketError) => setState("errors", [...state.errors, error]);
 
   const setConnection = (connection: WebSocket | null) => setState("connection", connection);
+
+  const clearMessages = () => setState("messages", []);
+
+  const clearErrors = () => setState("errors", []);
 
   const connect = (): Promise<void> =>
     new Promise((resolve, reject) => {
@@ -41,23 +55,26 @@ export const createWebSocketClient = (serverUrl: string) => {
 
         ws.onmessage = event => {
           try {
+            console.log("onmessage", event.data);
             const data = JSON.parse(event.data);
             const parsed = ServerMessageSchema.safeParse(data);
 
             if (!parsed.success) {
+              console.log("invalid message format", parsed.error);
               const error = new WebSocketError(`Invalid message format: ${parsed.error.message}`);
               addError(error);
               return;
             }
 
+            console.log("addMessage", parsed.data);
             addMessage(parsed.data);
           } catch (error) {
-            addError(new WebSocketError(`Failed to parse message: ${String(error)}`));
+            addError(new WebSocketError(`Failed to parse message: ${formatError(error)}`));
           }
         };
 
-        ws.onerror = error => {
-          const wsError = new WebSocketError(`WebSocket error: ${String(error)}`);
+        ws.onerror = () => {
+          const wsError = new WebSocketError("Unable to connect to game server");
           addError(wsError);
           reject(wsError);
         };
@@ -67,7 +84,7 @@ export const createWebSocketClient = (serverUrl: string) => {
           setConnection(null);
         };
       } catch (error) {
-        const wsError = new WebSocketError(`Failed to connect: ${String(error)}`);
+        const wsError = new WebSocketError(`Failed to connect: ${formatError(error)}`);
         addError(wsError);
         reject(wsError);
       }
@@ -86,7 +103,7 @@ export const createWebSocketClient = (serverUrl: string) => {
         connection.send(JSON.stringify(message));
         resolve();
       } catch (error) {
-        const wsError = new WebSocketError(`Failed to send message: ${String(error)}`);
+        const wsError = new WebSocketError(`Failed to send message: ${formatError(error)}`);
         addError(wsError);
         reject(wsError);
       }
@@ -105,10 +122,6 @@ export const createWebSocketClient = (serverUrl: string) => {
       connection.close();
     });
   };
-
-  const clearMessages = () => setState("messages", []);
-
-  const clearErrors = () => setState("errors", []);
 
   return {
     connect,

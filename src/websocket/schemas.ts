@@ -183,7 +183,7 @@ const InvalidMessageErrorSchema = z.object({
   }),
 });
 
-export const ServerMessageSchema = z.discriminatedUnion("type", [
+export const ServerMessageSchema = z.union([
   LogInSuccessSchema,
   LogInErrorSchema,
   HandshakeErrorSchema,

@@ -1,0 +1,59 @@
+.dialog {
+  border: none;
+  border-radius: 8px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 90%;
+}
+
+.dialog::backdrop {
+  background: transparent;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #1b6039;
+  box-shadow: 0 0 0 2px rgba(27, 96, 57, 0.2);
+}
+
+.error {
+  color: #dc2626;
+  font-size: 14px;
+  margin-top: -8px;
+}
+
+.button {
+  padding: 8px 16px;
+  background: #1b6039;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.button:hover {
+  background: #134229;
+}
+
+.button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
